@@ -17,7 +17,8 @@ rules:
           - metavariable-pattern:
               metavariable: $ANY
               pattern-regex: \${{\s*(?:github\.[^}]*\.(?:body|default_branch|email|head_ref|label|message|name|page_name|ref|title)|steps\.[A-Za-z0-9_-]+\.outputs(?:\.[A-Za-z0-9_-]+)+)\s*}}
-        - patterns: # Pattern for Claude Code Actions
+        # Pattern for Claude Code Actions. For Claude Code, user input doesn't necessarily have to be concatenated inside the prompt attribute. Exploitation depends on whether the allowed tools are able to retrieve user input.
+        - patterns:
           - pattern-inside: | # Comment this out, in case you also want to consider potential risks from insiders/trusted users.
               with:
                 ...
