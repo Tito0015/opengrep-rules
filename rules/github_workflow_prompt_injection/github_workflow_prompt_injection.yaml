@@ -4,6 +4,8 @@ rules:
       - yaml
     message: "When concatenating user input inside a prompt within a GitHub Action, the inference output should be considered untrusted."
     severity: "WARNING"
+    author: "Aikido's Internal Security Research Team (https://github.com/AikidoSec/opengrep-rules)"
+    license: MIT License (https://github.com/AikidoSec/opengrep-rules/blob/main/LICENSE)
     paths:
       include:
         - .github/workflows/*.yaml
@@ -15,11 +17,11 @@ rules:
           - metavariable-pattern:
               metavariable: $ANY
               pattern-regex: \${{\s*(?:github\.[^}]*\.(?:body|default_branch|email|head_ref|label|message|name|page_name|ref|title)|steps\.[A-Za-z0-9_-]+\.outputs(?:\.[A-Za-z0-9_-]+)+)\s*}}
-        - patterns:
-          - pattern-inside: |
+        - patterns: # Pattern for Claude Code Actions
+          - pattern-inside: | # Comment this out, in case you also want to consider potential risks from insiders/trusted users.
               with:
                 ...
-                allowed_non_write_users: "*"
+                allowed_non_write_users: "*" 
           - pattern: "claude_args: $ANY"
           - metavariable-pattern:
               metavariable: $ANY
