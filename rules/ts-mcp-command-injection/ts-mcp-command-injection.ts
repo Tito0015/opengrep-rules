@@ -36,7 +36,7 @@ server.registerTool(
 
 server.tool("safe-zod", { command: z.string() }, async ({ command }) => {
   const safe = z.string().parse(command);
-  // ok: ts-mcp-command-injection
+  // ruleid: ts-mcp-command-injection
   exec(safe);
   return { content: [{ type: "text" as const, text: "done" }] };
 });

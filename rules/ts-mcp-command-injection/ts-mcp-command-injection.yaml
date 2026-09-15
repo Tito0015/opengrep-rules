@@ -6,8 +6,9 @@ rules:
     message: >-
       User-controlled MCP tool or request-handler argument flows to a shell
       execution sink without validation. Tool arguments originate from LLM or
-      client input. Use execFile() with an explicit argument array, or validate
-      with zod.parse() / schema.parse() before calling exec() or execSync().
+      client input. Use execFile() with a fixed executable and an explicit
+      argument array (shell: false), and never pass user input as the command
+      string or with shell: true.
     metadata:
       cwe:
         - "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
@@ -26,37 +27,37 @@ rules:
     pattern-sources:
       - patterns:
           - pattern-inside: |
-              $SRV.setRequestHandler(..., async ($REQ) => {
+              $SRV.setRequestHandler(..., async ($REQ, ...) => {
                 ...
               })
           - pattern: $REQ.params.arguments.$ARG
       - patterns:
           - pattern-inside: |
-              $SRV.setRequestHandler(..., ($REQ) => {
+              $SRV.setRequestHandler(..., ($REQ, ...) => {
                 ...
               })
           - pattern: $REQ.params.arguments.$ARG
       - patterns:
           - pattern-inside: |
-              $SRV.tool(..., async ($ARGS) => {
+              $SRV.tool(..., async ($ARGS, ...) => {
                 ...
               })
           - pattern: $ARGS
       - patterns:
           - pattern-inside: |
-              $SRV.tool(..., async ({ $FIELD }) => {
+              $SRV.tool(..., async ({ $FIELD }, ...) => {
                 ...
               })
           - pattern: $FIELD
       - patterns:
           - pattern-inside: |
-              $SRV.registerTool(..., async ($ARGS) => {
+              $SRV.registerTool(..., async ($ARGS, ...) => {
                 ...
               })
           - pattern: $ARGS
       - patterns:
           - pattern-inside: |
-              $SRV.registerTool(..., async ({ $FIELD }) => {
+              $SRV.registerTool(..., async ({ $FIELD }, ...) => {
                 ...
               })
           - pattern: $FIELD
@@ -76,7 +77,23 @@ rules:
       - patterns:
           - pattern: eval($CMD)
           - focus-metavariable: $CMD
-    pattern-sanitizers:
-      - pattern: z.parse(...)
-      - pattern: zod.parse(...)
-      - pattern: $SCHEMA.parse(...)
+      - patterns:
+          - pattern: execFile($CMD, ...)
+          - focus-metavariable: $CMD
+      - patterns:
+          - pattern: execFileSync($CMD, ...)
+          - focus-metavariable: $CMD
+      - patterns:
+          - pattern: $CP.execFile($CMD, ...)
+          - focus-metavariable: $CMD
+      - patterns:
+          - pattern: $CP.execFileSync($CMD, ...)
+          - focus-metavariable: $CMD
+      - patterns:
+          - pattern: "execFile($FILE, $ARGS, {..., shell: true, ...})"
+      - patterns:
+          - pattern: "execFileSync($FILE, $ARGS, {..., shell: true, ...})"
+      - patterns:
+          - pattern: "$CP.execFile($FILE, $ARGS, {..., shell: true, ...})"
+      - patterns:
+          - pattern: "$CP.execFileSync($FILE, $ARGS, {..., shell: true, ...})"
