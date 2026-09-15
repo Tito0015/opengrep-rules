@@ -90,10 +90,10 @@ rules:
           - pattern: $CP.execFileSync($CMD, ...)
           - focus-metavariable: $CMD
       - patterns:
-          - pattern: "execFile($FILE, $ARGS, {..., shell: true, ...})"
+          - pattern: "execFile($FILE, $ARGS, {..., shell: true, ...}, ...)"
       - patterns:
-          - pattern: "execFileSync($FILE, $ARGS, {..., shell: true, ...})"
+          - pattern: "execFileSync($FILE, $ARGS, {..., shell: true, ...}, ...)"
       - patterns:
-          - pattern: "$CP.execFile($FILE, $ARGS, {..., shell: true, ...})"
+          - pattern: "$CP.execFile($FILE, $ARGS, {..., shell: true, ...}, ...)"
       - patterns:
-          - pattern: "$CP.execFileSync($FILE, $ARGS, {..., shell: true, ...})"
+          - pattern: "$CP.execFileSync($FILE, $ARGS, {..., shell: true, ...}, ...)"
