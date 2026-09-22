@@ -34,6 +34,12 @@ server.registerTool(
   }
 );
 
+server.tool("eval-concat", { command: z.string() }, async ({ command }) => {
+  // ruleid: ts-mcp-command-injection
+  eval("prefix" + command + "suffix");
+  return { content: [{ type: "text" as const, text: "done" }] };
+});
+
 server.tool("safe-zod", { command: z.string() }, async ({ command }) => {
   const safe = z.string().parse(command);
   // ruleid: ts-mcp-command-injection

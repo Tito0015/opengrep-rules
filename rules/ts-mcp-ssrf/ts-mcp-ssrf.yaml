@@ -1,17 +1,16 @@
 rules:
-  - id: ts-mcp-command-injection
+  - id: ts-mcp-ssrf
     mode: taint
     languages: [typescript, javascript]
     severity: ERROR
     message: >-
-      User-controlled MCP tool or request-handler argument flows to a shell
-      execution sink without validation. Tool arguments originate from LLM or
-      client input. Use execFile() with a fixed executable and an explicit
-      argument array (shell: false), and never pass user input as the command
-      string or with shell: true.
+      User-controlled MCP tool or request-handler argument flows to an HTTP
+      request URL without validation. An attacker may supply internal network
+      URLs (SSRF). Validate URLs with an allowlist before calling fetch() or
+      axios.
     metadata:
       cwe:
-        - "CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+        - "CWE-918: Server-Side Request Forgery (SSRF)"
       category: security
       license: MIT
       confidence: HIGH
@@ -63,35 +62,23 @@ rules:
           - focus-metavariable: $FIELD
     pattern-sinks:
       - patterns:
-          - pattern: exec($CMD, ...)
-          - focus-metavariable: $CMD
+          - pattern: fetch($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: execSync($CMD, ...)
-          - focus-metavariable: $CMD
+          - pattern: $AXIOS($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: $CP.exec($CMD, ...)
-          - focus-metavariable: $CMD
+          - pattern: $AXIOS.get($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: $CP.execSync($CMD, ...)
-          - focus-metavariable: $CMD
-      - pattern: eval(...)
+          - pattern: $AXIOS.post($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: execFile($CMD, ...)
-          - focus-metavariable: $CMD
+          - pattern: $AXIOS.put($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: execFileSync($CMD, ...)
-          - focus-metavariable: $CMD
+          - pattern: $AXIOS.delete($URL, ...)
+          - focus-metavariable: $URL
       - patterns:
-          - pattern: $CP.execFile($CMD, ...)
-          - focus-metavariable: $CMD
-      - patterns:
-          - pattern: $CP.execFileSync($CMD, ...)
-          - focus-metavariable: $CMD
-      - patterns:
-          - pattern: "execFile($FILE, $ARGS, {..., shell: true, ...}, ...)"
-      - patterns:
-          - pattern: "execFileSync($FILE, $ARGS, {..., shell: true, ...}, ...)"
-      - patterns:
-          - pattern: "$CP.execFile($FILE, $ARGS, {..., shell: true, ...}, ...)"
-      - patterns:
-          - pattern: "$CP.execFileSync($FILE, $ARGS, {..., shell: true, ...}, ...)"
+          - pattern: $AXIOS.patch($URL, ...)
+          - focus-metavariable: $URL
