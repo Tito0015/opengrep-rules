@@ -8,20 +8,20 @@ const server = new McpServer({ name: "test-server", version: "1.0.0" });
 server.setRequestHandler("tools/call", async (REQ) => {
   const cmd = REQ.params.arguments.command;
   // ruleid: ts-mcp-command-injection
-  exec(cmd);
+  exec(cmd); // nosec
   return {};
 });
 
 server.tool("run-command", { command: z.string() }, async (args) => {
   // ruleid: ts-mcp-command-injection
-  exec(args.command, () => {});
+  exec(args.command, () => {}); // nosec
   return { content: [{ type: "text" as const, text: "done" }] };
 });
 
 server.tool("run-sync", { command: z.string() }, async ({ command }) => {
   // ruleid: ts-mcp-command-injection
-  execSync(command);
-  return { content: [{ type: "text" as const, text: "ok" }] };
+  execSync(command); // nosec
+  return { content: [{ type: "text" as const, text: "done" }] };
 });
 
 server.registerTool(
@@ -29,21 +29,21 @@ server.registerTool(
   { description: "run", inputSchema: z.object({ command: z.string() }) },
   async ({ command }) => {
     // ruleid: ts-mcp-command-injection
-    cp.execSync(command);
+    cp.execSync(command); // nosec
     return { content: [{ type: "text" as const, text: "done" }] };
   }
 );
 
 server.tool("eval-concat", { command: z.string() }, async ({ command }) => {
   // ruleid: ts-mcp-command-injection
-  eval("prefix" + command + "suffix");
+  eval("prefix" + command + "suffix"); // nosec
   return { content: [{ type: "text" as const, text: "done" }] };
 });
 
 server.tool("safe-zod", { command: z.string() }, async ({ command }) => {
   const safe = z.string().parse(command);
   // ruleid: ts-mcp-command-injection
-  exec(safe);
+  exec(safe); // nosec
   return { content: [{ type: "text" as const, text: "done" }] };
 });
 
